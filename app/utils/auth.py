@@ -31,3 +31,6 @@ def verify_token(token: str):
         return payload
     except JWTError:
         return None 
+    
+async def get_redis():
+    return redis_client    
