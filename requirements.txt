@@ -21,6 +21,8 @@ redis==5.0.3 # verify
 # Celery and RabbitMQ
 celery==5.3.6 # verify celery, check if there are newer versions
 pika==1.3.2 # check if there are newer versions
+flower==2.0.1 #monitor celery
+
 
 #email
 google-auth-oauthlib==1.2.0
@@ -29,3 +31,5 @@ google-api-python-client==2.125.0
 pytest==8.0.2 # verify
 pytest-asyncio==0.23.3 # verify
 httpx==0.26.0 # verify
+requests==2.31.0
+

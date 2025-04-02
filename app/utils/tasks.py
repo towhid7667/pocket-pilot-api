@@ -8,6 +8,7 @@ from google.auth.transport.requests import Request
 from celery import Celery
 from dotenv import load_dotenv
 import os
+from app.utils.telegram import send_telegram_message
 
 load_dotenv()
 RABBITMQ_URL = os.getenv("RABBITMQ_URL")
@@ -23,28 +24,37 @@ def generate_otp(length=6):
 
 class EmailService:
     def __init__(self):
-        self.creds = Credentials(
-           token=None,
-           refresh_token=GMAIL_REFRESH_TOKEN,
-           token_uri="https://oauth2.googleapis.com/token",
-           client_id=GMAIL_CLIENT_ID,
-           client_secret=GMAIL_CLIENT_SECRET,
-           scopes=["https://www.googleapis.com/auth/gmail.send"] 
-        )
+        try:
+            self.creds = Credentials(
+            token=None,
+            refresh_token=GMAIL_REFRESH_TOKEN,
+            token_uri="https://oauth2.googleapis.com/token",
+            client_id=GMAIL_CLIENT_ID,
+            client_secret=GMAIL_CLIENT_SECRET,
+            scopes=["https://www.googleapis.com/auth/gmail.send"] 
+            )
 
-        self.creds.refresh(Request())
-        self.service = build("gmail", "v1", credentials=self.creds)
+            self.creds.refresh(Request())
+            self.service = build("gmail", "v1", credentials=self.creds)
 
+        except Exception as error:
+            error_msg = f"Failed to initialize EmailService: {str(error)}"
+            send_telegram_message(error_msg)
+            raise
     def send_welcome_email(self, email : str):
         try:
             message = {'raw' : self._create_welcome_message(email)}
             self.service.users().messages().send(userId="me", body=message).execute()
             print("Welcome email sent successfully!")
         except HttpError as error:
-            print(f"Gmail API error: {error}")
+            error_msg = f"Gmail API error in send_welcome_email: {str(error)}"
+            print(error_msg)
+            send_telegram_message(error_msg)
             raise HTTPException(status_code=500, detail="Failed to send welcome email due to Gmail API error")
         except Exception as error:
-            print(f"An error occurred: {error}")
+            error_msg = f"Error sending welcome email: {str(error)}"
+            print(error_msg)
+            send_telegram_message(error_msg)
             raise HTTPException(status_code=500, detail="Failed to send welcome email")
         
     def send_otp_email(self, email : str, otp : str):
@@ -53,10 +63,14 @@ class EmailService:
             self.service.users().messages().send(userId="me", body=message).execute()
             print("OTP email sent successfully!")
         except HttpError as error:
-            print(f"Gmail API error: {error}")
+            error_msg = f"Gmail API error in send_otp_email: {str(error)}"
+            print(error_msg)
+            send_telegram_message(error_msg)
             raise HTTPException(status_code=500, detail="Failed to send OTP email due to Gmail API error")
         except Exception as error:
-            print(f"An error occurred: {error}")
+            error_msg = f"Error sending OTP email: {str(error)}"
+            print(error_msg)
+            send_telegram_message(error_msg)
             raise HTTPException(status_code=500, detail="Failed to send OTP email")
 
 
