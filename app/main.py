@@ -15,6 +15,10 @@ app = FastAPI(
 app.include_router(router)
 Base.metadata.create_all(bind=engine)
 
+@app.get("/", response_model=dict)
+async def root():
+    return {"message": "Pocket Pilot API is running"}
+
 @app.exception_handler(Exception)
 async def global_exception_handler(request: Request, exc: Exception):
     """Handles all uncaught exceptions and sends them to Telegram."""
