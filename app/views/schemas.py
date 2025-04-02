@@ -33,6 +33,15 @@ class UserResponse(BaseModel):
 class UserUpdate(BaseModel):
     name: Optional[str] = None
     profile_picture_url: Optional[str] = None
+    password: Optional[str] = None
 
 class UserListResponse(BaseModel):
     users: List[UserResponse]
+
+class ForgotPasswordRequest(BaseModel):
+    email: str
+
+class ResetPasswordRequest(BaseModel):
+    email: str
+    otp: str
+    new_password: str

@@ -1,0 +1,61 @@
+# Pocket Pilot
+
+A FastAPI-based expense tracker with user authentication.
+
+## Setup
+1. Install dependencies: `pip install -r requirements.txt`
+2. Set up environment variables in `.env` (see `.env` example above).
+   - Add `TELEGRAM_BOT_TOKEN` and `TELEGRAM_CHAT_ID` for error notifications.
+   - Add `NGINX_PROXY_MANAGER_ADMIN_EMAIL` and `NGINX_PROXY_MANAGER_ADMIN_PASSWORD` for Nginx Proxy Manager.
+3. Run locally: 
+   - App: `uvicorn app.main:app --reload --port 8400`
+   - Celery: `celery -A app.celery_worker.celery_app worker --loglevel=info -Q email`
+   - Flower: `make flower` (optional, for local monitoring)
+4. Run with Docker: `make run`
+5. Run tests: `make test`
+
+## Features
+- User registration/login with OTP verification via Gmail API.
+- JWT-based authentication with Redis token blacklisting.
+- SQLite database, RabbitMQ for async email tasks.
+- Dockerized app, Celery worker, and tests.
+- Flower: Monitor Celery tasks at `http://localhost/flower/`.
+- Redoc: View API documentation at `http://localhost/redoc`.
+- Nginx Proxy Manager: Web-based proxy management at `http://localhost:81`.
+- Portainer: Manage Docker containers at `http://localhost:9000`.
+- Telegram Notifications: Sends detailed error messages to your Telegram chat.
+
+## Endpoints
+- `POST /user/register`: Register a new user.
+- `POST /user/verify`: Verify user with OTP.
+- `POST /user/login`: Log in and get a JWT token.
+- `POST /user/logout`: Log out and blacklist the token.
+- `GET /user/{user_id}`: Get user info by ID (authenticated).
+- `GET /user/`: Get all users (authenticated).
+- `PUT /user/{user_id}`: Edit user details (name, profile picture, password; authenticated, own profile only).
+- `POST /user/forgot-password`: Send a reset password OTP to the user's email.
+- `POST /user/reset-password`: Verify OTP and reset the user's password.
+
+## Docker Services
+- **API**: `http://localhost` (via Nginx Proxy Manager)
+- **Swagger UI**: `http://localhost/docs`
+- **Redoc**: `http://localhost/redoc`
+- **Flower**: `http://localhost/flower/`
+- **RabbitMQ Management**: `http://localhost:15672` (username: `guest`, password: `guest`)
+- **Nginx Proxy Manager**: `http://localhost:81` (admin UI)
+- **Portainer**: `http://localhost:9000` (set up on first access)
+
+## Telegram Setup
+1. Create a bot with `@BotFather` to get a `TELEGRAM_BOT_TOKEN`.
+2. Start a chat with your bot and get your `TELEGRAM_CHAT_ID` via `https://api.telegram.org/bot<YourBotToken>/getUpdates`.
+3. Add these to `.env`.
+
+## Nginx Proxy Manager Setup
+1. Run `make run` to start the services.
+2. Access `http://localhost:81`.
+3. Log in with `NGINX_PROXY_MANAGER_ADMIN_EMAIL` and `NGINX_PROXY_MANAGER_ADMIN_PASSWORD` from `.env`.
+4. Configure proxy hosts:
+   - **API**: Host: `app`, Port: `8400`, Path: `/`.
+   - **Flower**: Host: `flower`, Port: `5555`, Path: `/flower/`.
+   - **Docs**: Host: `app`, Port: `8400`, Path: `/docs`.
+   - **Redoc**: Host: `app`, Port: `8400`, Path: `/redoc`.
