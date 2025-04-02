@@ -72,7 +72,19 @@ class EmailService:
             print(error_msg)
             send_telegram_message(error_msg)
             raise HTTPException(status_code=500, detail="Failed to send OTP email")
-
+    def send_reset_password_otp_email(self, email: str, otp: str):
+        try:
+            message = {'raw': self._create_reset_password_otp_message(email, otp)}
+            self.service.users().messages().send(userId="me", body=message).execute()
+            print("Reset password OTP email sent successfully!")
+        except HttpError as e:
+            error_msg = f"Gmail API error in send_reset_password_otp_email: {str(e)}"
+            send_telegram_message(error_msg)
+            raise HTTPException(status_code=500, detail="Failed to send reset password OTP email due to Gmail API error")
+        except Exception as e:
+            error_msg = f"Error sending reset password OTP email: {str(e)}"
+            send_telegram_message(error_msg)
+            raise HTTPException(status_code=500, detail="Failed to send reset password OTP email")
 
     def _create_welcome_message(self, email : str):
         subject = "Welcome to our Service!"
@@ -113,7 +125,22 @@ class EmailService:
 
         return base64.urlsafe_b64encode(email_message.encode("utf-8")).decode("utf-8")
     
-
+    def _create_reset_password_otp_message(self, to: str, otp: str) -> str:
+        subject = "Reset Your Password"
+        message_text = (
+            f"Hello,\n\n"
+            f"You requested a password reset. Your OTP is: {otp}. It expires in 10 minutes.\n\n"
+            "Best regards,\n"
+            "The Team"
+        )
+        email_message = (
+            f"From: {GMAIL_SENDER_EMAIL}\r\n"
+            f"To: {to}\r\n"
+            f"Subject: {subject}\r\n"
+            f"\r\n"
+            f"{message_text}"
+        )
+        return base64.urlsafe_b64encode(email_message.encode("utf-8")).decode("utf-8")
 email_service = EmailService()
 
 @celery_app.task
@@ -123,3 +150,7 @@ def send_welcome_email_task(email : str):
 @celery_app.task
 def send_otp_email_task(email : str, otp : str):
     email_service.send_otp_email(email, otp)
+
+@celery_app.task
+def send_reset_password_otp_email_task(email: str, otp: str):
+    email_service.send_reset_password_otp_email(email, otp)    
