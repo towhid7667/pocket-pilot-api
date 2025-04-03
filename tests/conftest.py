@@ -1,14 +1,18 @@
 import pytest
+import asyncio
 from httpx import AsyncClient
 from app.main import app
 from app.database import Base, engine
 
-@pytest.fixture
+@pytest.fixture(scope="function")
 async def client():
-    async with AsyncClient(app=app, base_url="http://test") as ac:
-        yield ac
+    # Create the client without closing it immediately
+    client = AsyncClient(app=app, base_url="http://test")
+    yield client
+    # Explicitly close the client after the test
+    await client.aclose()
 
-@pytest.fixture
+@pytest.fixture(scope="function")
 def setup_db():
     Base.metadata.create_all(bind=engine)
     yield

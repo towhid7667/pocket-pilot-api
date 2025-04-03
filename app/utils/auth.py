@@ -10,7 +10,6 @@ secret_key = os.getenv("SECRET_KEY")
 JWT_ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 REDIS_URL = os.getenv("REDIS_URL")
-redis_client = redis.Redis.from_url(REDIS_URL, decode_responses=True)
 
 
 def hash_password(password : str) -> str:
@@ -21,7 +20,7 @@ def verify_password(plain_password : str, hashed_password : str) -> bool:
 
 def create_access_token(data: dict , expires_delta: timedelta = None):
     to_encode = data.copy()
-    expire = datetime.now(datetime.timezone.utc) + (expires_delta or timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)) 
+    expire = datetime.now(tz=datetime.timezone.utc) + (expires_delta or timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)) 
     to_encode.update({"exp": expire})
     return jwt.encode(to_encode, secret_key, algorithm=JWT_ALGORITHM)  
 
@@ -33,4 +32,5 @@ def verify_token(token: str):
         return None 
     
 async def get_redis():
-    return redis_client    
+    client = await redis.Redis.from_url(REDIS_URL, decode_responses=True)
+    return client

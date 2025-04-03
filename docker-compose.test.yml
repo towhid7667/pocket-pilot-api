@@ -5,11 +5,15 @@ services:
       context: .
       dockerfile: Dockerfile.test
     depends_on:
-      - redis
-      - rabbitmq
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
     volumes:
-      - ./app:/app
+      - ./app:/app/app
       - ./tests:/app/tests
+    environment:
+      - PYTHONPATH=/app
     env_file:
       - .env
 
@@ -17,9 +21,19 @@ services:
     image: redis:7.0
     ports:
       - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
 
   rabbitmq:
     image: rabbitmq:3-management
     ports:
       - "5672:5672"
       - "15672:15672"
+    healthcheck:
+      test: ["CMD", "rabbitmqctl", "status"]
+      interval: 5s
+      timeout: 3s
+      retries: 5

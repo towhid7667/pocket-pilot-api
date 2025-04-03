@@ -6,7 +6,7 @@ from app.utils.telegram import send_telegram_message
 import traceback
 
 app = FastAPI(
-    title="Expense Tracker API",
+    title="pocket pilot API",
     description="API for managing expenses with user authentication",
     version="1.0.0",
     docs_url="/docs",

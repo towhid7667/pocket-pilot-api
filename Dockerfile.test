@@ -2,6 +2,8 @@ FROM python:3.11-slim
 WORKDIR /app
 COPY requirements.txt .
 RUN pip install -r requirements.txt
-COPY ./app ./app
-COPY ./tests ./tests
-CMD ["pytest", "tests/", "--asyncio-mode=auto", "-v"]
+# Explicitly install test dependencies
+RUN pip install pytest pytest-asyncio httpx redis
+COPY app/ app/
+COPY tests/ tests/
+CMD ["pytest", "tests", "--asyncio-mode=auto", "-v"]

@@ -70,7 +70,7 @@ async def edit_user(user_id: str, user_update: UserUpdate, db: Session = Depends
 @router.post("/forgot-password", response_model=dict)
 async def forgot_password_endpoint(request: ForgotPasswordRequest, db: Session = Depends(get_db), redis_client = Depends(get_redis)):
     user_id = await forgot_password(request.email, db, redis_client)
-    return {"message": "Reset password OTP sent", "user_id": user_id}
+    return {"message": "Reset password OTP sent", "user_id": user_id.id}
 
 @router.post("/reset-password", response_model=dict)
 async def reset_password_endpoint(request: ResetPasswordRequest, db: Session = Depends(get_db), redis_client = Depends(get_redis)):
