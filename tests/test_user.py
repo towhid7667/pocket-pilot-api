@@ -14,13 +14,15 @@ async def test_register_and_verify(client: AsyncClient, setup_db):
     user_id = response.json()["user_id"]
 
     redis_client = await get_redis()
-    otp = await redis_client.get(f"otp:{user_id}")
+    try:
+        otp = await redis_client.get(f"otp:{user_id}")
+    finally:
+        await redis_client.aclose()
     response = await client.post("/user/verify", json={"user_id": user_id, "otp": otp})
     assert response.status_code == 200
 
 @pytest.mark.asyncio
 async def test_login_logout(client: AsyncClient, setup_db):
-    # Register once
     response = await client.post("/user/register", json={
         "email": "test@example.com",
         "password": "password123",
@@ -30,7 +32,10 @@ async def test_login_logout(client: AsyncClient, setup_db):
     user_id = response.json()["user_id"]
 
     redis_client = await get_redis()
-    otp = await redis_client.get(f"otp:{user_id}")
+    try:
+        otp = await redis_client.get(f"otp:{user_id}")
+    finally:
+        await redis_client.aclose()
     await client.post("/user/verify", json={"user_id": user_id, "otp": otp})
 
     response = await client.post("/user/login", json={
@@ -41,6 +46,7 @@ async def test_login_logout(client: AsyncClient, setup_db):
     token = response.json()["access_token"]
     assert "access_token" in response.cookies
 
+    # Send token in cookies instead of headers
     response = await client.post("/user/logout", cookies={"access_token": token})
     assert response.status_code == 200
     assert "access_token" not in response.cookies
@@ -59,7 +65,10 @@ async def test_user_operations(client: AsyncClient, setup_db):
     })
     user_id = response.json()["user_id"]
     redis_client = await get_redis()
-    otp = await redis_client.get(f"otp:{user_id}")
+    try:
+        otp = await redis_client.get(f"otp:{user_id}")
+    finally:
+        await redis_client.aclose()
     await client.post("/user/verify", json={"user_id": user_id, "otp": otp})
 
     response = await client.post("/user/login", json={
@@ -69,6 +78,7 @@ async def test_user_operations(client: AsyncClient, setup_db):
     assert response.status_code == 200
     token = response.json()["access_token"]
 
+    # Send token in cookies instead of headers
     response = await client.get(f"/user/{user_id}", cookies={"access_token": token})
     assert response.status_code == 200
     assert response.json()["email"] == "test@example.com"
@@ -100,14 +110,21 @@ async def test_forgot_password(client: AsyncClient, setup_db):
     })
     user_id = response.json()["user_id"]
     redis_client = await get_redis()
-    otp = await redis_client.get(f"otp:{user_id}")
+    try:
+        otp = await redis_client.get(f"otp:{user_id}")
+    finally:
+        await redis_client.aclose()
     await client.post("/user/verify", json={"user_id": user_id, "otp": otp})
 
     response = await client.post("/user/forgot-password", json={"email": "test@example.com"})
     assert response.status_code == 200
     user_id = response.json()["user_id"]
 
-    reset_otp = await redis_client.get(f"reset_otp:{user_id}")
+    redis_client = await get_redis()
+    try:
+        reset_otp = await redis_client.get(f"reset_otp:{user_id}")
+    finally:
+        await redis_client.aclose()
     response = await client.post("/user/reset-password", json={
         "email": "test@example.com",
         "otp": reset_otp,

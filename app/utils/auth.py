@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from jose import jwt, JWTError
 import bcrypt
 from dotenv import load_dotenv
@@ -18,11 +18,11 @@ def hash_password(password : str) -> str:
 def verify_password(plain_password : str, hashed_password : str) -> bool:
     return bcrypt.checkpw(plain_password.encode("utf-8"), hashed_password.encode("utf-8"))
 
-def create_access_token(data: dict , expires_delta: timedelta = None):
+def create_access_token(data: dict, expires_delta: timedelta = None):
     to_encode = data.copy()
-    expire = datetime.now(tz=datetime.timezone.utc) + (expires_delta or timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)) 
+    expire = datetime.utcnow().replace(tzinfo=timezone.utc) + (expires_delta or timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES))
     to_encode.update({"exp": expire})
-    return jwt.encode(to_encode, secret_key, algorithm=JWT_ALGORITHM)  
+    return jwt.encode(to_encode, secret_key, algorithm=JWT_ALGORITHM) 
 
 def verify_token(token: str):
     try:
