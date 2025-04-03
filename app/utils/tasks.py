@@ -3,7 +3,8 @@ import base64
 import string
 from google.oauth2.credentials import Credentials
 from googleapiclient.discovery import build
-from googleapiclient.errors import HttpError, HTTPException
+from googleapiclient.errors import HttpError
+from fastapi import HTTPException
 from google.auth.transport.requests import Request
 from celery import Celery
 from dotenv import load_dotenv
@@ -106,11 +107,11 @@ class EmailService:
         return base64.urlsafe_b64encode(email_message.encode("utf-8")).decode("utf-8")
 
 
-    def _create_otp_message(self, email : str):
+    def _create_otp_message(self, email : str, otp : str):
         subject = "Verify Your Account"
         message_text = (
             "Hello,\n\n"
-            "Your OTP is: {otp}. It expires in 10 minutes.\n\n"
+            f"Your OTP is: {otp}. It expires in 10 minutes.\n\n"
             "Best regards,\n"
             "The Team"
         )

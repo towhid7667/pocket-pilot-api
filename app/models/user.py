@@ -4,7 +4,7 @@ from app.database import Base
 import uuid
 from datetime import datetime
 class User(Base):
-    _tablename_ = "users"
+    __tablename__ = "users"
     id = Column(VARCHAR(255), primary_key=True, default=lambda: str(uuid.uuid4()), index=True)
     email = Column(String, unique=True, index=True, nullable=False)
     password_hash = Column(String, nullable=False)
