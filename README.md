@@ -3,9 +3,10 @@
 A FastAPI-based expense tracker with user authentication.
 
 ## Setup
-1. Set up environment variables in `.env` (see `.env` example above)
-2. Run with Docker: `make run`
-3. Run tests: `make test`
+1. clone the repository: `git clone`
+2. Set up environment variables in `.env` (see `.env` example above)
+3. Run with Docker: `make run`
+4. Run tests: `make test`
 
 ## Features
 - User registration/login with OTP verification via Gmail API.
