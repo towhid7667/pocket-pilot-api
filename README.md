@@ -3,16 +3,9 @@
 A FastAPI-based expense tracker with user authentication.
 
 ## Setup
-1. Install dependencies: `pip install -r requirements.txt`
-2. Set up environment variables in `.env` (see `.env` example above).
-   - Add `TELEGRAM_BOT_TOKEN` and `TELEGRAM_CHAT_ID` for error notifications.
-   - Add `NGINX_PROXY_MANAGER_ADMIN_EMAIL` and `NGINX_PROXY_MANAGER_ADMIN_PASSWORD` for Nginx Proxy Manager.
-3. Run locally: 
-   - App: `uvicorn app.main:app --reload --port 8400`
-   - Celery: `celery -A app.celery_worker.celery_app worker --loglevel=info -Q email`
-   - Flower: `make flower` (optional, for local monitoring)
-4. Run with Docker: `make run`
-5. Run tests: `make test`
+1. Set up environment variables in `.env` (see `.env` example above)
+2. Run with Docker: `make run`
+3. Run tests: `make test`
 
 ## Features
 - User registration/login with OTP verification via Gmail API.
