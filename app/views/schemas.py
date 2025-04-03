@@ -1,4 +1,4 @@
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, field_serializer
 from typing import Optional, List
 from datetime import datetime
 
@@ -28,12 +28,15 @@ class UserResponse(BaseModel):
     created_at: datetime
     is_verified: bool
 
+    @field_serializer('created_at')
+    def serialize_created_at(self, created_at: datetime, _info):
+        return created_at.isoformat()
+
     model_config = ConfigDict(
-        json_encoders={
-            datetime: lambda dt: dt.isoformat()  # This ensures created_at is a string in JSON
-        },
-        from_attributes=True  # Replaces orm_mode=True in Pydantic v2
+        from_attributes=True  # Replaces orm_mode=True
     )
+
+
 
 class UserUpdate(BaseModel):
     name: Optional[str] = None
