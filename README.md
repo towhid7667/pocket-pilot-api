@@ -45,11 +45,6 @@ A FastAPI-based expense tracker with user authentication.
 - **Nginx Proxy Manager**: `http://localhost:81` (admin UI)
 - **Portainer**: `http://localhost:9000` (set up on first access)
 
-## Telegram Setup
-1. Create a bot with `@BotFather` to get a `TELEGRAM_BOT_TOKEN`.
-2. Start a chat with your bot and get your `TELEGRAM_CHAT_ID` via `https://api.telegram.org/bot<YourBotToken>/getUpdates`.
-3. Add these to `.env`.
-
 ## Nginx Proxy Manager Setup
 1. Run `make run` to start the services.
 2. Access `http://localhost:81`.
