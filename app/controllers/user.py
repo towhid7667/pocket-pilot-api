@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, Response
+from fastapi import APIRouter, Depends, HTTPException, Response, Request
 from sqlalchemy.orm import Session
 from app.database import get_db
 from app.utils.auth import get_redis, verify_token
@@ -10,13 +10,19 @@ from app.utils.telegram import send_telegram_message
 
 router = APIRouter(prefix="/user", tags=["user"])
 
-async def get_current_user(token: str = Depends(lambda x: x.cookies.get("access_token")), redis_client = Depends(get_redis)):
+async def get_current_user(request: Request, redis_client = Depends(get_redis)):
     try:
+        token = request.cookies.get("access_token")
+        if not token:
+            raise HTTPException(401, "Not authenticated")
+            
         if await redis_client.get(f"blacklist:{token}"):
             raise HTTPException(401, "Token blacklisted")
+        
         payload = verify_token(token)
         if not payload:
             raise HTTPException(401, "Invalid token")
+        
         return payload["sub"]  # Return email instead of token for user identification
     except Exception as e:
         error_msg = f"Error in get_current_user: {str(e)}"
@@ -43,8 +49,10 @@ async def login(user: UserLogin, response: Response, db: Session = Depends(get_d
     raise HTTPException(401, "Invalid credentials")
 
 @router.post("/logout", response_model=dict)
-async def logout(response: Response, token: str = Depends(lambda x: x.cookies.get("access_token")), redis_client = Depends(get_redis)):
-    await logout_user(token, redis_client)
+async def logout(request: Request, response: Response, redis_client = Depends(get_redis)):
+    token = request.cookies.get("access_token")
+    if token:
+        await logout_user(token, redis_client)
     response.delete_cookie(key="access_token", httponly=True, secure=True)
     return {"message": "Logged out"}
 

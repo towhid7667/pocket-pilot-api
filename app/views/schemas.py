@@ -1,5 +1,6 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict, Field
 from typing import Optional, List
+from datetime import datetime
 
 class UserCreate(BaseModel):
     email: str
@@ -24,11 +25,15 @@ class UserResponse(BaseModel):
     email: str
     name: str
     profile_picture_url: Optional[str] = None
-    created_at: str
+    created_at: datetime
     is_verified: bool
 
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(
+        json_encoders={
+            datetime: lambda dt: dt.isoformat()  # This ensures created_at is a string in JSON
+        },
+        from_attributes=True  # Replaces orm_mode=True in Pydantic v2
+    )
 
 class UserUpdate(BaseModel):
     name: Optional[str] = None

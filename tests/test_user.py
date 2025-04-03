@@ -46,12 +46,13 @@ async def test_login_logout(client: AsyncClient, setup_db):
     token = response.json()["access_token"]
     assert "access_token" in response.cookies
 
-    # Send token in cookies instead of headers
     response = await client.post("/user/logout", cookies={"access_token": token})
+    print("Logout response:", response.status_code, response.json())
     assert response.status_code == 200
     assert "access_token" not in response.cookies
 
-    response = await client.get(f"/user/{user_id}", cookies={"access_token": token})
+    response = await client.get(f"/user/{str(user_id)}", cookies={"access_token": token})
+    print("Get user after logout response:", response.status_code, response.json())
     assert response.status_code == 401
     assert response.json()["detail"] == "Token blacklisted"
 
@@ -78,20 +79,22 @@ async def test_user_operations(client: AsyncClient, setup_db):
     assert response.status_code == 200
     token = response.json()["access_token"]
 
-    # Send token in cookies instead of headers
-    response = await client.get(f"/user/{user_id}", cookies={"access_token": token})
+    response = await client.get(f"/user/{str(user_id)}", cookies={"access_token": token})
+    print("Get user response:", response.status_code, response.json())
     assert response.status_code == 200
     assert response.json()["email"] == "test@example.com"
 
     response = await client.get("/user/", cookies={"access_token": token})
+    print("List users response:", response.status_code, response.json())
     assert response.status_code == 200
     assert len(response.json()["users"]) > 0
 
-    response = await client.put(f"/user/{user_id}", json={
+    response = await client.put(f"/user/{str(user_id)}", json={
         "name": "Updated User",
         "profile_picture_url": "http://example.com/newpic.jpg",
         "password": "newpassword456"
     }, cookies={"access_token": token})
+    print("Update user response:", response.status_code, response.json())
     assert response.status_code == 200
     assert response.json()["name"] == "Updated User"
 
