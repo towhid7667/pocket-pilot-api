@@ -64,7 +64,7 @@ async def get_user(user_id: str, db: Session = Depends(get_db), current_user: st
     return user
 
 @router.get("/", response_model=UserListResponse)
-async def list_users(db: Session = Depends(get_db), current_user: str = Depends(get_current_user)):
+async def list_users(db: Session = Depends(get_db)):
     users = await get_all_users(db)
     return {"users": users}
 
