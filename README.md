@@ -3,16 +3,10 @@
 A FastAPI-based expense tracker with user authentication.
 
 ## Setup
-1. Install dependencies: `pip install -r requirements.txt`
-2. Set up environment variables in `.env` (see `.env` example above).
-   - Add `TELEGRAM_BOT_TOKEN` and `TELEGRAM_CHAT_ID` for error notifications.
-   - Add `NGINX_PROXY_MANAGER_ADMIN_EMAIL` and `NGINX_PROXY_MANAGER_ADMIN_PASSWORD` for Nginx Proxy Manager.
-3. Run locally: 
-   - App: `uvicorn app.main:app --reload --port 8400`
-   - Celery: `celery -A app.celery_worker.celery_app worker --loglevel=info -Q email`
-   - Flower: `make flower` (optional, for local monitoring)
-4. Run with Docker: `make run`
-5. Run tests: `make test`
+1. clone the repository: `git clone`
+2. Set up environment variables in `.env` (see `.env` example above)
+3. Run with Docker: `make run`
+4. Run tests: `make test`
 
 ## Features
 - User registration/login with OTP verification via Gmail API.
@@ -44,11 +38,6 @@ A FastAPI-based expense tracker with user authentication.
 - **RabbitMQ Management**: `http://localhost:15672` (username: `guest`, password: `guest`)
 - **Nginx Proxy Manager**: `http://localhost:81` (admin UI)
 - **Portainer**: `http://localhost:9000` (set up on first access)
-
-## Telegram Setup
-1. Create a bot with `@BotFather` to get a `TELEGRAM_BOT_TOKEN`.
-2. Start a chat with your bot and get your `TELEGRAM_CHAT_ID` via `https://api.telegram.org/bot<YourBotToken>/getUpdates`.
-3. Add these to `.env`.
 
 ## Nginx Proxy Manager Setup
 1. Run `make run` to start the services.
